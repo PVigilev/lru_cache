@@ -63,8 +63,15 @@ namespace gen
                 }
                 cache.put(std::get<1>(tuple), std::get<2>(tuple));
                 auto top_new = cache.front();
-                EXPECT_NE(top_old, top_new) << i << " " << "PUT_NEW";
-                validateLRU(i, tuple, cache);
+                if (expected_size > 0) 
+                {
+                    EXPECT_NE(top_old, top_new) << i << " " << "PUT_NEW";
+                    validateLRU(i, tuple, cache);
+                }
+                else
+                {
+                    EXPECT_FALSE(top_new.has_value());
+                }
             }
             else if (std::get<0>(tuple) == CacheOperationControl::PUT_EXIST)
             {
@@ -134,6 +141,13 @@ namespace gen
             { CacheOperationControl::PUT_EXIST, 2, 4 },
             { CacheOperationControl::PUT_NEW, 1, 2 },
             { CacheOperationControl::GET_EXIST, 1, 2 }
+    },
+        std::vector< std::tuple<CacheOperationControl, int, int>>{
+            { CacheOperationControl::RESERVE, 0, 0 },
+            { CacheOperationControl::PUT_NEW, 1, 2 },
+            { CacheOperationControl::PUT_NEW, 2, 3 },
+            { CacheOperationControl::GET_NOT_EXIST, 1, 2 },
+            { CacheOperationControl::GET_NOT_EXIST, 2, 3 }
     }
     ));
 
